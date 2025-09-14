@@ -1,111 +1,89 @@
+:root {
+  --bg: #f8f4ef;
+  --text: #2d2a26;
+  --header: #d9c7a4;
+  --highlight: #a67c52;
+  --fret: #e8e2d6;
+  --fret-marker: #bba27a;
+}
+
+body.dark {
+  --bg: #2b2b2b;
+  --text: #f4f0e6;
+  --header: #4a4033;
+  --highlight: #c7a97b;
+  --fret: #3a3a3a;
+  --fret-marker: #8c7b5d;
+}
+
 body {
-    font-family: sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 20px;
-    background-color: #f4f4f4;
+  font-family: 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
+  margin: 20px;
+  transition: background 0.4s, color 0.4s;
 }
 
-.controls {
-    margin-bottom: 20px;
-    display: flex;
-    gap: 15px;
-    align-items: center;
+h1 {
+  margin-bottom: 15px;
 }
 
-.fretboard-wrapper {
-    position: relative;
-    margin-top: 20px;
-    width: 100%;
-    max-width: 900px;
+#controls {
+  margin-bottom: 20px;
+}
+
+select, button, label {
+  margin: 5px;
+  padding: 5px 10px;
+}
+
+button {
+  cursor: pointer;
+  border-radius: 6px;
+  border: none;
+  background: var(--header);
+  color: var(--text);
+  font-weight: bold;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: var(--highlight);
 }
 
 table {
-    border-collapse: collapse;
-    width: 100%;
-    position: relative;
-    z-index: 10;
+  border-collapse: collapse;
+  margin: auto;
+  font-size: 14px;
 }
 
 th, td {
-    border: none;
-    border-right: 2px solid #333;
-    border-bottom: 1px solid #ccc;
-    text-align: center;
-    padding: 5px 10px;
-    height: 30px;
-    font-weight: bold;
-    width: calc(100% / 15);
-    background-color: #fff;
-    white-space: nowrap;
+  border: 1px solid var(--text);
+  width: 50px;
+  height: 40px;
+  text-align: center;
+  vertical-align: middle;
 }
 
-thead th {
-    background-color: #333;
-    color: white;
-    border-bottom: 2px solid #333;
-    border-right: 2px solid #333;
+th {
+  background: var(--header);
 }
 
-th:first-child, td:first-child {
-    border-right: 2px solid #333;
+td {
+  background: var(--fret);
 }
 
-/* Fret Markers */
-.fret-markers {
-    position: absolute;
-    top: 50%;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    transform: translateY(-50%);
-    z-index: 5;
+/* Fret markers on 3, 5, 7, 9, 12 */
+td.fret-3, td.fret-5, td.fret-7, td.fret-9, td.fret-12 {
+  border-bottom: 3px solid var(--fret-marker);
 }
 
-.marker {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 12px;
-    height: 12px;
-    background-color: #555;
-    border-radius: 50%;
-}
-
-.marker-3 { left: calc(3 * (100% / 15) + (100% / 30)); }
-.marker-5 { left: calc(5 * (100% / 15) + (100% / 30)); }
-.marker-7 { left: calc(7 * (100% / 15) + (100% / 30)); }
-.marker-9 { left: calc(9 * (100% / 15) + (100% / 30)); }
-
-.double-marker {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    left: calc(12 * (100% / 15) + (100% / 30));
-    width: 30px;
-    top: 50%;
-    transform: translateY(-50%);
-}
-
-.double-marker::before, .double-marker::after {
-    content: '';
-    width: 12px;
-    height: 12px;
-    background-color: #555;
-    border-radius: 50%;
-}
-
-/* Chakra Colors */
-.note-C { background-color: #8B0000; color: white; } /* Muladhara - Red */
-.note-C-sharp { background-color: #8B0000; color: white; }
-.note-D { background-color: #FFA500; color: black; } /* Svadhisthana - Orange */
-.note-D-sharp { background-color: #FFA500; color: black; }
-.note-E { background-color: #FFFF00; color: black; } /* Manipura - Yellow */
-.note-F { background-color: #008000; color: white; } /* Anahata - Green */
-.note-F-sharp { background-color: #008000; color: white; }
-.note-G { background-color: #0000FF; color: white; } /* Vishuddha - Blue */
-.note-G-sharp { background-color: #0000FF; color: white; }
-.note-A { background-color: #4B0082; color: white; } /* Ajna - Indigo */
-.note-A-sharp { background-color: #4B0082; color: white; }
-.note-B { background-color: #800080; color: white; } /* Sahasrara - Violet */
+/* Chakra colors */
+.note-A { background: indigo; color: white; }
+.note-B { background: violet; color: black; }
+.note-C { background: red; color: white; }
+.note-D { background: orange; color: black; }
+.note-E { background: yellow; color: black; }
+.note-F { background: green; color: white; }
+.note-G { background: blue; color: white; }
