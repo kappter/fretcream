@@ -1,4 +1,4 @@
-```html
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -142,7 +142,7 @@
         }
         .piano {
             display: flex;
-            min-width: 600px;
+            min-width: 2100px; /* Approx width for 88 keys */
             background-color: #5c4033; /* Match fretboard */
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -157,15 +157,15 @@
             cursor: pointer;
         }
         .key.white {
-            background-color: #f5e8c7; /* Light beige for white keys */
+            background-color: #f5e8c7; /* Light beige */
         }
         body.dark .key.white {
-            background-color: #d8c4a3; /* Slightly lighter in dark mode */
+            background-color: #d8c4a3;
         }
         .key.black {
-            background-color: #3a2e22; /* Dark wood for black keys */
+            background-color: #3a2e22; /* Dark wood */
             height: clamp(25px, 6vw, 30px);
-            margin: 0 -15px;
+            margin: 0 -12px;
             z-index: 2;
         }
         body.dark .key.black {
@@ -175,7 +175,7 @@
             font-weight: bold;
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
         }
-        .key::after {
+        .key.active::after {
             content: attr(data-note);
             position: absolute;
             bottom: 5px;
@@ -184,13 +184,13 @@
             font-size: clamp(8px, 2vw, 9px);
             color: #4a3728;
         }
-        body.dark .key::after {
+        body.dark .key.active::after {
             color: #d8c4a3;
         }
-        .key.black::after {
+        .key.black.active::after {
             color: #d8c4a3;
         }
-        body.dark .key.black::after {
+        body.dark .key.black.active::after {
             color: #f5e8c7;
         }
         /* Earthy chakra colors */
@@ -240,6 +240,12 @@
             <option value="Mixolydian">Mixolydian</option>
             <option value="Aeolian">Aeolian (Minor)</option>
             <option value="Locrian">Locrian</option>
+            <option value="MajorPentatonic">Major Pentatonic</option>
+            <option value="MinorPentatonic">Minor Pentatonic</option>
+            <option value="Blues">Blues</option>
+            <option value="WholeTone">Whole Tone</option>
+            <option value="HarmonicMinor">Harmonic Minor</option>
+            <option value="MelodicMinor">Melodic Minor</option>
         </select>
 
         <label for="dropD">Drop D:</label>
@@ -285,7 +291,7 @@
 
     <div class="piano-container">
         <div class="piano" id="piano">
-            <!-- Piano keys will be generated dynamically -->
+            <!-- Piano keys generated dynamically -->
         </div>
     </div>
 
@@ -298,7 +304,13 @@
             Lydian: [0, 2, 4, 6, 7, 9, 11],
             Mixolydian: [0, 2, 4, 5, 7, 9, 10],
             Aeolian: [0, 2, 3, 5, 7, 8, 10],
-            Locrian: [0, 1, 3, 5, 6, 8, 10]
+            Locrian: [0, 1, 3, 5, 6, 8, 10],
+            MajorPentatonic: [0, 2, 4, 7, 9],
+            MinorPentatonic: [0, 3, 5, 7, 10],
+            Blues: [0, 3, 5, 6, 7, 10],
+            WholeTone: [0, 2, 4, 6, 8, 10],
+            HarmonicMinor: [0, 2, 3, 5, 7, 8, 11],
+            MelodicMinor: [0, 2, 3, 5, 7, 9, 11]
         };
         const chakraColors = {
             'A': 'A',
@@ -319,8 +331,9 @@
             'B': 59, // B (string 2)
             'e': 64  // High E (string 1)
         };
-        const pianoNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
-        const pianoMidiStart = 60; // C4
+        const pianoNotes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+        const pianoMidiStart = 21; // A0
+        const pianoMidiEnd = 108; // C8
 
         // Web Audio API setup
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -406,17 +419,19 @@
 
             // Populate piano roll
             const piano = document.getElementById('piano');
-            piano.innerHTML = ''; // Clear existing keys
-            pianoNotes.forEach((note, index) => {
+            piano.innerHTML = '';
+            for (let midi = pianoMidiStart; midi <= pianoMidiEnd; midi++) {
+                const noteIndex = (midi - pianoMidiStart) % 12;
+                const note = pianoNotes[noteIndex];
                 const key = document.createElement('div');
                 key.classList.add('key', note.includes('#') ? 'black' : 'white');
                 key.setAttribute('data-note', note);
                 if (scaleNotes.includes(note)) {
                     key.classList.add('active', getChakraClass(note));
                 }
-                key.addEventListener('click', () => playNote(pianoMidiStart + index));
+                key.addEventListener('click', () => playNote(midi));
                 piano.appendChild(key);
-            });
+            }
         }
 
         // Theme toggle
