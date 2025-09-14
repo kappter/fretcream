@@ -1,46 +1,90 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guitar Fretboard Scale Visualizer</title>
+    <title>Fretcream - Guitar Fretboard Visualizer</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: #f4f4f9;
             margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .controls {
-            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            background-color: #fff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
         select, input {
-            margin-right: 10px;
+            padding: 8px;
+            font-size: 14px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #6200ea;
         }
         table {
             border-collapse: collapse;
+            background-color: #3c2f2f; /* Dark wood-like color for fretboard */
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
         th, td {
-            border: 1px solid #ccc;
-            padding: 8px;
+            padding: 4px 6px;
             text-align: center;
-            width: 50px;
+            width: 40px;
+            height: 20px; /* Reduced vertical space */
+            font-size: 12px;
+            color: #fff;
         }
         th {
-            background-color: #f0f0f0;
+            background-color: #222;
+            font-weight: normal;
+        }
+        td:first-child {
+            background-color: #222;
+            width: 30px;
+            font-weight: bold;
         }
         .note-cell {
             font-weight: bold;
+            border-radius: 50%;
+        }
+        /* Fret marker styles */
+        .fret-3, .fret-5, .fret-7, .fret-9 {
+            border-right: 2px solid #ccc;
+        }
+        .fret-12 {
+            border-right: 3px double #ccc; /* Double line for 12th fret */
         }
         /* Chakra colors */
-        .color-A { background-color: indigo; color: white; }
-        .color-B { background-color: violet; color: white; }
-        .color-C { background-color: red; color: white; }
-        .color-D { background-color: orange; color: black; }
+        .color-A { background-color: indigo; }
+        .color-B { background-color: violet; }
+        .color-C { background-color: red; }
+        .color-D { background-color: orange; }
         .color-E { background-color: yellow; color: black; }
-        .color-F { background-color: green; color: white; }
-        .color-G { background-color: blue; color: white; }
+        .color-F { background-color: green; }
+        .color-G { background-color: blue; }
+        h1 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
+    <h1>Fretcream</h1>
     <div class="controls">
         <label for="key">Key:</label>
         <select id="key">
@@ -69,7 +113,7 @@
             <option value="Locrian">Locrian</option>
         </select>
 
-        <label for="dropD">Drop D Tuning:</label>
+        <label for="dropD">Drop D:</label>
         <input type="checkbox" id="dropD">
     </div>
 
@@ -80,26 +124,26 @@
                 <th>0</th>
                 <th>1</th>
                 <th>2</th>
-                <th>3</th>
+                <th class="fret-3">3</th>
                 <th>4</th>
-                <th>5</th>
+                <th class="fret-5">5</th>
                 <th>6</th>
-                <th>7</th>
+                <th class="fret-7">7</th>
                 <th>8</th>
-                <th>9</th>
+                <th class="fret-9">9</th>
                 <th>10</th>
                 <th>11</th>
-                <th>12</th>
+                <th class="fret-12">12</th>
                 <th>13</th>
             </tr>
         </thead>
         <tbody>
-            <tr data-string="1"><td>e</td></tr> <!-- High E -->
-            <tr data-string="2"><td>B</td></tr>
-            <tr data-string="3"><td>G</td></tr>
-            <tr data-string="4"><td>D</td></tr>
+            <tr data-string="6"><td>E</td></tr> <!-- Low E/D -->
             <tr data-string="5"><td>A</td></tr>
-            <tr data-string="6"><td>E</td></tr> <!-- Low E -->
+            <tr data-string="4"><td>D</td></tr>
+            <tr data-string="3"><td>G</td></tr>
+            <tr data-string="2"><td>B</td></tr>
+            <tr data-string="1"><td>e</td></tr> <!-- High E -->
         </tbody>
     </table>
 
@@ -124,8 +168,8 @@
             'G': 'G'
         };
 
-        const standardTuning = ['E', 'B', 'G', 'D', 'A', 'E']; // Strings 1 to 6, high to low
-        const dropDTuning = ['E', 'B', 'G', 'D', 'A', 'D'];
+        const standardTuning = ['E', 'A', 'D', 'G', 'B', 'E']; // Strings 6 to 1, low to high
+        const dropDTuning = ['D', 'A', 'D', 'G', 'B', 'E'];
 
         function getNote(base, fret) {
             const baseIndex = notes.indexOf(base);
@@ -165,12 +209,18 @@
                     } else {
                         td.textContent = '';
                     }
+                    // Add fret marker classes
+                    if (fret === 3) td.classList.add('fret-3');
+                    else if (fret === 5) td.classList.add('fret-5');
+                    else if (fret === 7) td.classList.add('fret-7');
+                    else if (fret === 9) td.classList.add('fret-9');
+                    else if (fret === 12) td.classList.add('fret-12');
                     row.appendChild(td);
                 }
 
                 // Update open string label based on tuning
                 const stringLabel = row.querySelector('td:first-child');
-                stringLabel.textContent = openNote.toLowerCase(); // Lowercase for convention, e.g., 'e' for high E
+                stringLabel.textContent = openNote.toLowerCase();
             });
         }
 
@@ -184,3 +234,4 @@
     </script>
 </body>
 </html>
+```
