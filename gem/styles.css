@@ -1,1 +1,47 @@
+body {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #f4f4f4;
+}
 
+.controls {
+    margin-bottom: 20px;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    max-width: 800px;
+    margin-top: 20px;
+}
+
+th, td {
+    border: 1px solid #ccc;
+    text-align: center;
+    padding: 10px;
+    width: 50px;
+    height: 50px;
+    font-weight: bold;
+}
+
+thead th {
+    background-color: #333;
+    color: white;
+}
+
+/* Chakra Colors */
+.note-C { background-color: #8B0000; color: white; } /* Muladhara - Red */
+.note-C-sharp { background-color: #8B0000; color: white; }
+.note-D { background-color: #FFA500; color: black; } /* Svadhisthana - Orange */
+.note-D-sharp { background-color: #FFA500; color: black; }
+.note-E { background-color: #FFFF00; color: black; } /* Manipura - Yellow */
+.note-F { background-color: #008000; color: white; } /* Anahata - Green */
+.note-F-sharp { background-color: #008000; color: white; }
+.note-G { background-color: #0000FF; color: white; } /* Vishuddha - Blue */
+.note-G-sharp { background-color: #0000FF; color: white; }
+.note-A { background-color: #4B0082; color: white; } /* Ajna - Indigo */
+.note-A-sharp { background-color: #4B0082; color: white; }
+.note-B { background-color: #800080; color: white; } /* Sahasrara - Violet */
