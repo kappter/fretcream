@@ -1,93 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Guitar Fretboard Visualizer</title>
-<style>
-  body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
-  select, label { margin: 5px; }
-  table { border-collapse: collapse; margin: 20px auto; }
-  td, th {
-    border: 1px solid #333;
-    width: 40px;
-    height: 40px;
-    text-align: center;
-    vertical-align: middle;
-  }
-  .note { font-weight: bold; color: white; border-radius: 50%; }
-</style>
-</head>
-<body>
-  <h2>Guitar Fretboard Visualizer</h2>
-
-  <!-- Controls -->
-  <label for="key">Key:</label>
-  <select id="key"></select>
-
-  <label for="mode">Mode:</label>
-  <select id="mode">
-    <option>Ionian</option>
-    <option>Dorian</option>
-    <option>Phrygian</option>
-    <option>Lydian</option>
-    <option>Mixolydian</option>
-    <option>Aeolian</option>
-    <option>Locrian</option>
-  </select>
-
-  <label>
-    <input type="checkbox" id="dropD"> Drop D Tuning
-  </label>
-
-  <!-- Fretboard -->
-  <table id="fretboard"></table>
-
-<script>
-const notes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-const chakraColors = {
-  "A": "indigo",
-  "A#": "indigo", // share with A if not unique
-  "B": "violet",
-  "C": "red",
-  "C#": "red",
-  "D": "orange",
-  "D#": "orange",
-  "E": "yellow",
-  "F": "green",
-  "F#": "green",
-  "G": "blue",
-  "G#": "blue"
-};
-
-// Modes (intervals from tonic)
-const modes = {
-  "Ionian":    [0,2,4,5,7,9,11],
-  "Dorian":    [0,2,3,5,7,9,10],
-  "Phrygian":  [0,1,3,5,7,8,10],
-  "Lydian":    [0,2,4,6,7,9,11],
-  "Mixolydian":[0,2,4,5,7,9,10],
-  "Aeolian":   [0,2,3,5,7,8,10],
-  "Locrian":   [0,1,3,5,6,8,10]
-};
-
-// Strings (MIDI numbers not needed here, just note indices)
-const standardTuning = ["E","B","G","D","A","E"]; // high to low
-const dropDTuning   = ["E","B","G","D","A","D"];
-
-const keySelect = document.getElementById("key");
-const modeSelect = document.getElementById("mode");
-const dropDCheck = document.getElementById("dropD");
-const fretboard = document.getElementById("fretboard");
-
-// Fill key dropdown
-notes.forEach(n => {
-  let opt = document.createElement("option");
-  opt.value = n;
-  opt.textContent = n;
-  keySelect.appendChild(opt);
-});
-
-// Build fretboard grid
 function buildFretboard() {
   fretboard.innerHTML = "";
   let header = "<tr><th></th>";
@@ -97,42 +7,16 @@ function buildFretboard() {
 
   const tuning = dropDCheck.checked ? dropDTuning : standardTuning;
 
-  tuning.forEach((openNote, stringIndex) => {
+  // flip order → lowest string at bottom
+  [...tuning].reverse().forEach((openNote, stringIndex) => {
     let row = `<tr><th>Str ${6-stringIndex}</th>`;
     let startIndex = notes.indexOf(openNote);
     for (let f=0; f<=13; f++) {
       let note = notes[(startIndex + f) % 12];
-      row += `<td data-note="${note}"></td>`;
+      let fretClass = `fret-${f}`;
+      row += `<td class="${fretClass}" data-note="${note}"></td>`;
     }
     row += "</tr>";
     fretboard.innerHTML += row;
   });
 }
-
-// Highlight scale notes
-function updateFretboard() {
-  buildFretboard();
-  const key = keySelect.value;
-  const mode = modeSelect.value;
-  const keyIndex = notes.indexOf(key);
-  const scale = modes[mode].map(i => notes[(keyIndex + i) % 12]);
-
-  [...fretboard.querySelectorAll("td")].forEach(td => {
-    const n = td.dataset.note;
-    if (scale.includes(n)) {
-      td.style.background = chakraColors[n];
-      td.textContent = n;
-    }
-  });
-}
-
-[keySelect, modeSelect, dropDCheck].forEach(el => 
-  el.addEventListener("change", updateFretboard)
-);
-
-// Initialize
-buildFretboard();
-updateFretboard();
-</script>
-</body>
-</html>
