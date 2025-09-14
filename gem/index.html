@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Guitar Fretboard Visualizer</title>
+    <title>Fretcream</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -33,7 +33,7 @@
             <option value="phrygian">Phrygian</option>
             <option value="lydian">Lydian</option>
             <option value="mixolydian">Mixolydian</option>
-            <option value="aeolian">Aeolian</option>
+            <option value="aeolian">Aeolian (Natural Minor)</option>
             <option value="locrian">Locrian</option>
         </select>
 
@@ -43,11 +43,12 @@
         </label>
     </div>
 
-    <div class="fretboard-container">
+    <div class="fretboard-wrapper">
         <table id="fretboard">
             <thead>
                 <tr>
-                    <th></th> <th>0</th>
+                    <th></th>
+                    <th>0</th>
                     <th>1</th>
                     <th>2</th>
                     <th>3</th>
@@ -66,6 +67,13 @@
             <tbody>
                 </tbody>
         </table>
+        <div class="fret-markers">
+            <div class="marker marker-3"></div>
+            <div class="marker marker-5"></div>
+            <div class="marker marker-7"></div>
+            <div class="marker marker-9"></div>
+            <div class="marker double-marker"></div>
+        </div>
     </div>
 
     <script src="script.js"></script>
