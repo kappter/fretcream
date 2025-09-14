@@ -1,22 +1,35 @@
-function buildFretboard() {
-  fretboard.innerHTML = "";
-  let header = "<tr><th></th>";
-  for (let f=0; f<=13; f++) header += `<th>${f}</th>`;
-  header += "</tr>";
-  fretboard.innerHTML += header;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FretCream</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h2>🎸 FretCream – Guitar Fretboard Visualizer</h2>
 
-  const tuning = dropDCheck.checked ? dropDTuning : standardTuning;
+  <div id="controls">
+    <label for="key">Key:</label>
+    <select id="key"></select>
 
-  // flip order → lowest string at bottom
-  [...tuning].reverse().forEach((openNote, stringIndex) => {
-    let row = `<tr><th>Str ${6-stringIndex}</th>`;
-    let startIndex = notes.indexOf(openNote);
-    for (let f=0; f<=13; f++) {
-      let note = notes[(startIndex + f) % 12];
-      let fretClass = `fret-${f}`;
-      row += `<td class="${fretClass}" data-note="${note}"></td>`;
-    }
-    row += "</tr>";
-    fretboard.innerHTML += row;
-  });
-}
+    <label for="mode">Mode:</label>
+    <select id="mode">
+      <option>Ionian</option>
+      <option>Dorian</option>
+      <option>Phrygian</option>
+      <option>Lydian</option>
+      <option>Mixolydian</option>
+      <option>Aeolian</option>
+      <option>Locrian</option>
+    </select>
+
+    <label>
+      <input type="checkbox" id="dropD"> Drop D Tuning
+    </label>
+  </div>
+
+  <table id="fretboard"></table>
+
+  <script src="script.js"></script>
+</body>
+</html>
