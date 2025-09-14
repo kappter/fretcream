@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guitar Fretboard Scale Visualizer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+        }
+        select, input {
+            margin-right: 10px;
+        }
+        table {
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: center;
+            width: 50px;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+        .note-cell {
+            font-weight: bold;
+        }
+        /* Chakra colors */
+        .color-A { background-color: indigo; color: white; }
+        .color-B { background-color: violet; color: white; }
+        .color-C { background-color: red; color: white; }
+        .color-D { background-color: orange; color: black; }
+        .color-E { background-color: yellow; color: black; }
+        .color-F { background-color: green; color: white; }
+        .color-G { background-color: blue; color: white; }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <label for="key">Key:</label>
+        <select id="key">
+            <option value="A">A</option>
+            <option value="A#">A#</option>
+            <option value="B">B</option>
+            <option value="C">C</option>
+            <option value="C#">C#</option>
+            <option value="D">D</option>
+            <option value="D#">D#</option>
+            <option value="E">E</option>
+            <option value="F">F</option>
+            <option value="F#">F#</option>
+            <option value="G">G</option>
+            <option value="G#">G#</option>
+        </select>
+
+        <label for="mode">Mode/Scale:</label>
+        <select id="mode">
+            <option value="Ionian">Ionian (Major)</option>
+            <option value="Dorian">Dorian</option>
+            <option value="Phrygian">Phrygian</option>
+            <option value="Lydian">Lydian</option>
+            <option value="Mixolydian">Mixolydian</option>
+            <option value="Aeolian">Aeolian (Minor)</option>
+            <option value="Locrian">Locrian</option>
+        </select>
+
+        <label for="dropD">Drop D Tuning:</label>
+        <input type="checkbox" id="dropD">
+    </div>
+
+    <table id="fretboard">
+        <thead>
+            <tr>
+                <th>String</th>
+                <th>0</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3</th>
+                <th>4</th>
+                <th>5</th>
+                <th>6</th>
+                <th>7</th>
+                <th>8</th>
+                <th>9</th>
+                <th>10</th>
+                <th>11</th>
+                <th>12</th>
+                <th>13</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr data-string="1"><td>e</td></tr> <!-- High E -->
+            <tr data-string="2"><td>B</td></tr>
+            <tr data-string="3"><td>G</td></tr>
+            <tr data-string="4"><td>D</td></tr>
+            <tr data-string="5"><td>A</td></tr>
+            <tr data-string="6"><td>E</td></tr> <!-- Low E -->
+        </tbody>
+    </table>
+
+    <script>
+        const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
+        const modes = {
+            Ionian: [0, 2, 4, 5, 7, 9, 11],
+            Dorian: [0, 2, 3, 5, 7, 9, 10],
+            Phrygian: [0, 1, 3, 5, 7, 8, 10],
+            Lydian: [0, 2, 4, 6, 7, 9, 11],
+            Mixolydian: [0, 2, 4, 5, 7, 9, 10],
+            Aeolian: [0, 2, 3, 5, 7, 8, 10],
+            Locrian: [0, 1, 3, 5, 6, 8, 10]
+        };
+        const chakraColors = {
+            'A': 'A',
+            'B': 'B',
+            'C': 'C',
+            'D': 'D',
+            'E': 'E',
+            'F': 'F',
+            'G': 'G'
+        };
+
+        const standardTuning = ['E', 'B', 'G', 'D', 'A', 'E']; // Strings 1 to 6, high to low
+        const dropDTuning = ['E', 'B', 'G', 'D', 'A', 'D'];
+
+        function getNote(base, fret) {
+            const baseIndex = notes.indexOf(base);
+            return notes[(baseIndex + fret) % 12];
+        }
+
+        function getScaleNotes(root, mode) {
+            const rootIndex = notes.indexOf(root);
+            return modes[mode].map(interval => notes[(rootIndex + interval) % 12]);
+        }
+
+        function getChakraClass(note) {
+            const letter = note.replace('#', '');
+            return `color-${chakraColors[letter]}`;
+        }
+
+        function populateFretboard() {
+            const key = document.getElementById('key').value;
+            const mode = document.getElementById('mode').value;
+            const dropD = document.getElementById('dropD').checked;
+            const tuning = dropD ? dropDTuning : standardTuning;
+            const scaleNotes = getScaleNotes(key, mode);
+
+            const tbody = document.querySelector('#fretboard tbody');
+            const rows = tbody.querySelectorAll('tr');
+
+            rows.forEach((row, stringIndex) => {
+                const openNote = tuning[stringIndex];
+                row.querySelectorAll('td:not(:first-child)').forEach(td => td.remove()); // Clear existing frets
+
+                for (let fret = 0; fret <= 13; fret++) {
+                    const note = getNote(openNote, fret);
+                    const td = document.createElement('td');
+                    if (scaleNotes.includes(note)) {
+                        td.textContent = note;
+                        td.classList.add('note-cell', getChakraClass(note));
+                    } else {
+                        td.textContent = '';
+                    }
+                    row.appendChild(td);
+                }
+
+                // Update open string label based on tuning
+                const stringLabel = row.querySelector('td:first-child');
+                stringLabel.textContent = openNote.toLowerCase(); // Lowercase for convention, e.g., 'e' for high E
+            });
+        }
+
+        // Initial population
+        populateFretboard();
+
+        // Event listeners
+        document.getElementById('key').addEventListener('change', populateFretboard);
+        document.getElementById('mode').addEventListener('change', populateFretboard);
+        document.getElementById('dropD').addEventListener('change', populateFretboard);
+    </script>
+</body>
+</html>
