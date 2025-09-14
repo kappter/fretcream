@@ -2,6 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const keySelect = document.getElementById('key-select');
     const modeSelect = document.getElementById('mode-select');
     const dropDCheckbox = document.getElementById('drop-d-checkbox');
+    const lowStringToggle = document.getElementById('low-string-toggle'); // Get the new toggle
+    const darkModeToggle = document.getElementById('dark-mode-toggle');
     const fretboardTableBody = document.querySelector('#fretboard tbody');
 
     // Define all 12 notes in the chromatic scale
@@ -25,12 +27,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedKey = keySelect.value;
         const selectedMode = modeSelect.value;
         const isDropD = dropDCheckbox.checked;
+        const isLowStringOnBottom = lowStringToggle.checked; // Check the state of the new toggle
 
         // Define tuning based on checkbox state
-        const tuning = isDropD ? ['D', 'A', 'D', 'G', 'B', 'E'] : ['E', 'A', 'D', 'G', 'B', 'E'];
+        const standardTuning = isDropD ? ['D', 'A', 'D', 'G', 'B', 'E'] : ['E', 'A', 'D', 'G', 'B', 'E'];
         
-        // Reverse the tuning array to display the low string at the bottom
-        const reversedTuning = [...tuning].reverse();
+        // Choose the correct tuning array based on the toggle
+        const displayedTuning = isLowStringOnBottom ? [...standardTuning].reverse() : standardTuning;
 
         const keyIndex = notes.indexOf(selectedKey);
         const scaleIntervals = scales[selectedMode];
@@ -38,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Build the scale notes array based on the key and mode
         const scaleNotes = scaleIntervals.map(interval => notes[(keyIndex + interval) % 12]);
         
-        reversedTuning.forEach(openStringNote => {
+        displayedTuning.forEach(openStringNote => {
             const row = document.createElement('tr');
             
             const stringNameCell = document.createElement('td');
@@ -64,10 +67,38 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Function for Dark/Light mode
+    function setTheme(isDark) {
+        const body = document.body;
+        if (isDark) {
+            body.classList.add('dark-mode');
+        } else {
+            body.classList.remove('dark-mode');
+        }
+    }
+
+    // Check for saved preference or system preference for dark mode
+    const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+    const savedDarkMode = localStorage.getItem('darkMode');
+
+    if (savedDarkMode !== null) {
+        darkModeToggle.checked = (savedDarkMode === 'true');
+    } else {
+        darkModeToggle.checked = prefersDarkScheme.matches;
+    }
+    setTheme(darkModeToggle.checked);
+
     // Add event listeners to trigger the function
     keySelect.addEventListener('change', renderFretboard);
     modeSelect.addEventListener('change', renderFretboard);
     dropDCheckbox.addEventListener('change', renderFretboard);
+    lowStringToggle.addEventListener('change', renderFretboard); // New listener for the layout toggle
+    darkModeToggle.addEventListener('change', () => {
+        const isDark = darkModeToggle.checked;
+        localStorage.setItem('darkMode', isDark);
+        setTheme(isDark);
+        renderFretboard();
+    });
 
     // Initial render
     renderFretboard();
