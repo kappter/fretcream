@@ -1,0 +1,67 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+  background: #111;
+  color: #eee;
+}
+
+h2 {
+  margin-bottom: 15px;
+}
+
+#controls {
+  margin-bottom: 15px;
+}
+
+select, label {
+  margin: 5px;
+  padding: 5px;
+  font-size: 14px;
+}
+
+table {
+  border-collapse: collapse;
+  margin: 20px auto;
+  background: #222;
+}
+
+th {
+  color: #aaa;
+  font-size: 12px;
+  padding: 2px 4px;
+}
+
+td {
+  width: 45px;
+  height: 24px; /* compact height */
+  text-align: center;
+  vertical-align: middle;
+  font-size: 12px;
+  position: relative;
+  border-right: 2px solid #555; /* frets */
+  border-bottom: 1px solid #333; /* string lines */
+}
+
+/* fret markers */
+td.fret-3, td.fret-5, td.fret-7, td.fret-9 {
+  border-right: 3px solid #888;
+}
+td.fret-12 {
+  border-right: 4px double #aaa;
+}
+
+td.note {
+  font-weight: bold;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  margin: auto;
+}
+
+tr th:first-child {
+  text-align: right;
+  padding-right: 6px;
+}
