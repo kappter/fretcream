@@ -8,11 +8,12 @@
     <style>
         body {
             font-family: 'Georgia', serif;
-            margin: 20px;
+            margin: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             transition: background-color 0.3s ease, color 0.3s ease;
+            min-height: 100vh;
         }
         body.light {
             background-color: #f5e8c7; /* Warm beige */
@@ -23,20 +24,23 @@
             color: #d8c4a3; /* Light beige */
         }
         h1 {
-            font-size: 28px;
-            margin-bottom: 15px;
+            font-size: clamp(20px, 5vw, 24px);
+            margin: 10px 0;
             font-weight: normal;
             text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
         }
         .controls {
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
-            padding: 15px 25px;
-            border-radius: 10px;
+            gap: 10px;
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 8px;
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
         }
         body.light .controls {
             background-color: #e4d3a8; /* Light earthy tan */
@@ -44,10 +48,13 @@
         body.dark .controls {
             background-color: #4a3728; /* Dark brown */
         }
+        label {
+            font-size: clamp(12px, 3vw, 14px);
+        }
         select, input[type="checkbox"] {
-            padding: 8px;
-            font-size: 14px;
-            border-radius: 6px;
+            padding: 6px;
+            font-size: clamp(12px, 3vw, 14px);
+            border-radius: 5px;
             border: 1px solid #8b7b5a; /* Muted olive */
             background-color: #fff;
             transition: border-color 0.3s ease, background-color 0.3s ease;
@@ -58,8 +65,9 @@
             background-color: #f5e8c7;
         }
         button {
-            padding: 8px 12px;
-            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: clamp(12px, 3vw, 14px);
+            border-radius: 5px;
             border: 1px solid #8b7b5a;
             background-color: #a68a64;
             color: #fff;
@@ -69,23 +77,29 @@
         button:hover {
             background-color: #8b7b5a;
         }
+        .fretboard-container {
+            overflow-x: auto;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
         table {
             border-collapse: separate;
             border-spacing: 0;
             background-color: #5c4033; /* Rich walnut wood */
-            border-radius: 10px;
-            overflow: hidden;
+            border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
             transition: background-color 0.3s ease;
+            min-width: 600px;
         }
         th, td {
-            padding: 3px 5px;
+            padding: 2px 4px;
             text-align: center;
-            width: 38px;
-            height: 18px;
-            font-size: 11px;
+            width: clamp(30px, 5vw, 34px);
+            height: clamp(14px, 3vw, 16px);
+            font-size: clamp(9px, 2.5vw, 10px);
             transition: background-color 0.3s ease;
-            position: relative; /* For fret wire pseudo-elements */
+            position: relative;
         }
         th {
             background-color: #3a2e22; /* Darker wood */
@@ -94,7 +108,7 @@
         }
         td:first-child {
             background-color: #3a2e22;
-            width: 28px;
+            width: clamp(24px, 4vw, 26px);
             font-weight: bold;
             color: #d8c4a3;
         }
@@ -102,12 +116,11 @@
             font-weight: bold;
             border-radius: 50%;
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
         }
-        /* Marked fret columns (0, 3, 5, 7, 9, 12) */
         .fret-0, .fret-3, .fret-5, .fret-7, .fret-9, .fret-12 {
-            background-color: #634935; /* Slightly lighter wood tone */
+            background-color: #634935; /* Slightly lighter wood */
         }
-        /* Fret wire lines for marked frets */
         .fret-3::after, .fret-5::after, .fret-7::after, .fret-9::after, .fret-12::after {
             content: '';
             position: absolute;
@@ -119,8 +132,66 @@
             z-index: 1;
         }
         .fret-12::after {
-            width: 3px; /* Thicker for 12th fret */
-            background: linear-gradient(to right, #a68a64 33%, transparent 33%, transparent 66%, #a68a64 66%); /* Double line effect */
+            width: 3px;
+            background: linear-gradient(to right, #a68a64 33%, transparent 33%, transparent 66%, #a68a64 66%);
+        }
+        .piano-container {
+            overflow-x: auto;
+            width: 100%;
+            max-width: 600px;
+        }
+        .piano {
+            display: flex;
+            min-width: 600px;
+            background-color: #5c4033; /* Match fretboard */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 5px;
+        }
+        .key {
+            position: relative;
+            flex: 1;
+            height: clamp(40px, 10vw, 50px);
+            border: 1px solid #3a2e22;
+            transition: background-color 0.3s ease;
+            cursor: pointer;
+        }
+        .key.white {
+            background-color: #f5e8c7; /* Light beige for white keys */
+        }
+        body.dark .key.white {
+            background-color: #d8c4a3; /* Slightly lighter in dark mode */
+        }
+        .key.black {
+            background-color: #3a2e22; /* Dark wood for black keys */
+            height: clamp(25px, 6vw, 30px);
+            margin: 0 -15px;
+            z-index: 2;
+        }
+        body.dark .key.black {
+            background-color: #4a3728;
+        }
+        .key.active {
+            font-weight: bold;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        .key::after {
+            content: attr(data-note);
+            position: absolute;
+            bottom: 5px;
+            width: 100%;
+            text-align: center;
+            font-size: clamp(8px, 2vw, 9px);
+            color: #4a3728;
+        }
+        body.dark .key::after {
+            color: #d8c4a3;
+        }
+        .key.black::after {
+            color: #d8c4a3;
+        }
+        body.dark .key.black::after {
+            color: #f5e8c7;
         }
         /* Earthy chakra colors */
         .color-A { background-color: #4a7043; } /* Forest green (Ajna) */
@@ -130,6 +201,15 @@
         .color-E { background-color: #e4b04a; } /* Sandy yellow (Manipura) */
         .color-F { background-color: #5b8c5a; } /* Sage green (Anahata) */
         .color-G { background-color: #4a8294; } /* Slate blue (Vishuddha) */
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .fretboard-container, .piano-container {
+                -webkit-overflow-scrolling: touch;
+            }
+        }
     </style>
 </head>
 <body class="light">
@@ -171,35 +251,43 @@
         <button id="theme-toggle">Toggle Dark/Light</button>
     </div>
 
-    <table id="fretboard">
-        <thead>
-            <tr>
-                <th>String</th>
-                <th class="fret-0">0</th>
-                <th>1</th>
-                <th>2</th>
-                <th class="fret-3">3</th>
-                <th>4</th>
-                <th class="fret-5">5</th>
-                <th>6</th>
-                <th class="fret-7">7</th>
-                <th>8</th>
-                <th class="fret-9">9</th>
-                <th>10</th>
-                <th>11</th>
-                <th class="fret-12">12</th>
-                <th>13</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr data-string="6"><td>E</td></tr> <!-- Low E/D -->
-            <tr data-string="5"><td>A</td></tr>
-            <tr data-string="4"><td>D</td></tr>
-            <tr data-string="3"><td>G</td></tr>
-            <tr data-string="2"><td>B</td></tr>
-            <tr data-string="1"><td>e</td></tr> <!-- High E -->
-        </tbody>
-    </table>
+    <div class="fretboard-container">
+        <table id="fretboard">
+            <thead>
+                <tr>
+                    <th>String</th>
+                    <th class="fret-0">0</th>
+                    <th>1</th>
+                    <th>2</th>
+                    <th class="fret-3">3</th>
+                    <th>4</th>
+                    <th class="fret-5">5</th>
+                    <th>6</th>
+                    <th class="fret-7">7</th>
+                    <th>8</th>
+                    <th class="fret-9">9</th>
+                    <th>10</th>
+                    <th>11</th>
+                    <th class="fret-12">12</th>
+                    <th>13</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr data-string="6"><td>E</td></tr> <!-- Low E/D -->
+                <tr data-string="5"><td>A</td></tr>
+                <tr data-string="4"><td>D</td></tr>
+                <tr data-string="3"><td>G</td></tr>
+                <tr data-string="2"><td>B</td></tr>
+                <tr data-string="1"><td>e</td></tr> <!-- High E -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="piano-container">
+        <div class="piano" id="piano">
+            <!-- Piano keys will be generated dynamically -->
+        </div>
+    </div>
 
     <script>
         const notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'];
@@ -223,6 +311,38 @@
         };
         const standardTuning = ['E', 'A', 'D', 'G', 'B', 'E']; // Strings 6 to 1, low to high
         const dropDTuning = ['D', 'A', 'D', 'G', 'B', 'E'];
+        const openStringMidi = {
+            'E': 40, // Low E (string 6)
+            'A': 45, // A (string 5)
+            'D': 50, // D (string 4)
+            'G': 55, // G (string 3)
+            'B': 59, // B (string 2)
+            'e': 64  // High E (string 1)
+        };
+        const pianoNotes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        const pianoMidiStart = 60; // C4
+
+        // Web Audio API setup
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        let currentOscillator = null;
+
+        function getFrequency(midiNote) {
+            return 440 * Math.pow(2, (midiNote - 69) / 12);
+        }
+
+        function playNote(midiNote) {
+            if (currentOscillator) {
+                currentOscillator.stop();
+                currentOscillator = null;
+            }
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(getFrequency(midiNote), audioContext.currentTime);
+            oscillator.connect(audioContext.currentTime ? audioContext.destination : audioContext);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.5);
+            currentOscillator = oscillator;
+        }
 
         function getNote(base, fret) {
             const baseIndex = notes.indexOf(base);
@@ -247,8 +367,9 @@
             const tuning = dropD ? dropDTuning : standardTuning;
             const scaleNotes = getScaleNotes(key, mode);
 
+            // Populate fretboard
             const tbody = document.querySelector('#fretboard tbody');
-            tbody.querySelectorAll('tr').forEach(tr => tr.remove()); // Clear existing rows
+            tbody.querySelectorAll('tr').forEach(tr => tr.remove());
 
             const stringOrder = lowStringTop ? [1, 2, 3, 4, 5, 6] : [6, 5, 4, 3, 2, 1];
             stringOrder.forEach(stringIndex => {
@@ -266,6 +387,8 @@
                     if (scaleNotes.includes(note)) {
                         td.textContent = note;
                         td.classList.add('note-cell', getChakraClass(note));
+                        const midiNote = openStringMidi[openNote.toLowerCase()] + fret;
+                        td.addEventListener('click', () => playNote(midiNote));
                     } else {
                         td.textContent = '';
                     }
@@ -280,6 +403,20 @@
 
                 tbody.appendChild(row);
             });
+
+            // Populate piano roll
+            const piano = document.getElementById('piano');
+            piano.innerHTML = ''; // Clear existing keys
+            pianoNotes.forEach((note, index) => {
+                const key = document.createElement('div');
+                key.classList.add('key', note.includes('#') ? 'black' : 'white');
+                key.setAttribute('data-note', note);
+                if (scaleNotes.includes(note)) {
+                    key.classList.add('active', getChakraClass(note));
+                }
+                key.addEventListener('click', () => playNote(pianoMidiStart + index));
+                piano.appendChild(key);
+            });
         }
 
         // Theme toggle
@@ -291,7 +428,7 @@
         // Layout toggle
         document.getElementById('layout-toggle').addEventListener('change', populateFretboard);
 
-        // Initial population (low string at bottom by default)
+        // Initial population
         populateFretboard();
 
         // Event listeners
