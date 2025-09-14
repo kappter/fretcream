@@ -70,7 +70,8 @@
             background-color: #8b7b5a;
         }
         table {
-            border-collapse: collapse;
+            border-collapse: separate;
+            border-spacing: 0;
             background-color: #5c4033; /* Rich walnut wood */
             border-radius: 10px;
             overflow: hidden;
@@ -84,6 +85,7 @@
             height: 18px;
             font-size: 11px;
             transition: background-color 0.3s ease;
+            position: relative; /* For fret wire pseudo-elements */
         }
         th {
             background-color: #3a2e22; /* Darker wood */
@@ -101,12 +103,26 @@
             border-radius: 50%;
             box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
         }
-        .fret-3, .fret-5, .fret-7, .fret-9 {
-            border-right: 2px solid #a68a64;
+        /* Marked fret columns (0, 3, 5, 7, 9, 12) */
+        .fret-0, .fret-3, .fret-5, .fret-7, .fret-9, .fret-12 {
+            background-color: #634935; /* Slightly lighter wood tone */
         }
-        .fret-12 {
-            border-right: 3px double #a68a64;
+        /* Fret wire lines for marked frets */
+        .fret-3::after, .fret-5::after, .fret-7::after, .fret-9::after, .fret-12::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: #a68a64; /* Taupe fret wire */
+            z-index: 1;
         }
+        .fret-12::after {
+            width: 3px; /* Thicker for 12th fret */
+            background: linear-gradient(to right, #a68a64 33%, transparent 33%, transparent 66%, #a68a64 66%); /* Double line effect */
+        }
+        /* Earthy chakra colors */
         .color-A { background-color: #4a7043; } /* Forest green (Ajna) */
         .color-B { background-color: #8b7b5a; } /* Muted olive (Sahasrara) */
         .color-C { background-color: #8c2f2f; } /* Deep terracotta (Muladhara) */
@@ -159,7 +175,7 @@
         <thead>
             <tr>
                 <th>String</th>
-                <th>0</th>
+                <th class="fret-0">0</th>
                 <th>1</th>
                 <th>2</th>
                 <th class="fret-3">3</th>
@@ -234,7 +250,7 @@
             const tbody = document.querySelector('#fretboard tbody');
             tbody.querySelectorAll('tr').forEach(tr => tr.remove()); // Clear existing rows
 
-            const stringOrder = lowStringTop ? [1, 2, 3, 4, 5, 6] : [6, 5, 4, 3, 2, 1]; // Toggle order
+            const stringOrder = lowStringTop ? [1, 2, 3, 4, 5, 6] : [6, 5, 4, 3, 2, 1];
             stringOrder.forEach(stringIndex => {
                 const openNote = tuning[stringIndex - 1];
                 const row = document.createElement('tr');
@@ -253,7 +269,8 @@
                     } else {
                         td.textContent = '';
                     }
-                    if (fret === 3) td.classList.add('fret-3');
+                    if (fret === 0) td.classList.add('fret-0');
+                    else if (fret === 3) td.classList.add('fret-3');
                     else if (fret === 5) td.classList.add('fret-5');
                     else if (fret === 7) td.classList.add('fret-7');
                     else if (fret === 9) td.classList.add('fret-9');
