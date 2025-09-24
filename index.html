@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mode Explorer</title>
+<style>
+  body {
+    background: linear-gradient(135deg, #0f0f0f, #1c1c1c);
+    color: #eee;
+    font-family: 'Roboto Mono', monospace;
+    margin: 0;
+    padding: 0;
+  }
+  header {
+    text-align: center;
+    padding: 1.5rem;
+    background: linear-gradient(90deg, #2c2c54, #24243e);
+    color: #f5f5f5;
+    font-size: 1.8rem;
+    letter-spacing: 2px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+  }
+  main {
+    padding: 2rem;
+    max-width: 900px;
+    margin: auto;
+  }
+  .controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  select {
+    background: #2a2a2a;
+    color: #eee;
+    padding: 0.6rem 1rem;
+    border: 1px solid #555;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s;
+  }
+  select:hover {
+    background: #444;
+    cursor: pointer;
+  }
+  section {
+    margin-bottom: 2rem;
+  }
+  h2 {
+    font-size: 1.2rem;
+    color: #9ef01a;
+    border-bottom: 1px solid #444;
+    padding-bottom: 0.3rem;
+    margin-bottom: 0.8rem;
+  }
+  .card {
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease, background 0.3s ease;
+  }
+  .card:hover {
+    transform: scale(1.02);
+    background: #292929;
+  }
+  .fade-in {
+    animation: fadeIn 0.6s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px);}
+    to { opacity: 1; transform: translateY(0);}
+  }
+</style>
+</head>
+<body>
+<header>🎶 Mode Explorer</header>
+<main>
+  <div class="controls">
+    <label>
+      Root:
+      <select id="root"></select>
+    </label>
+    <label>
+      Mode:
+      <select id="mode"></select>
+    </label>
+  </div>
+
+  <section>
+    <h2>Scale Notes & Intervals</h2>
+    <div id="scale" class="fade-in"></div>
+  </section>
+  <section>
+    <h2>Triads</h2>
+    <div id="triads" class="fade-in"></div>
+  </section>
+  <section>
+    <h2>Sevenths</h2>
+    <div id="sevenths" class="fade-in"></div>
+  </section>
+  <section>
+    <h2>Ninths</h2>
+    <div id="ninths" class="fade-in"></div>
+  </section>
+  <section>
+    <h2>Elevenths</h2>
+    <div id="elevenths" class="fade-in"></div>
+  </section>
+</main>
+
+<script>
+const chromatic = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const intervals = {
+  0: "Root",
+  1: "m2",
+  2: "M2",
+  3: "m3",
+  4: "M3",
+  5: "P4",
+  6: "Tritone",
+  7: "P5",
+  8: "m6",
+  9: "M6",
+  10: "m7",
+  11: "M7",
+  12: "Octave"
+};
+const modes = {
+  "Ionian (Major)": [2,2,1,2,2,2,1],
+  "Dorian": [2,1,2,2,2,1,2],
+  "Phrygian": [1,2,2,2,1,2,2],
+  "Lydian": [2,2,2,1,2,2,1],
+  "Mixolydian": [2,2,1,2,2,1,2],
+  "Aeolian (Natural Minor)": [2,1,2,2,1,2,2],
+  "Locrian": [1,2,2,1,2,2,2]
+};
+
+// Populate dropdowns
+const rootSel = document.getElementById("root");
+chromatic.forEach(n => {
+  const opt = document.createElement("option");
+  opt.value = n; opt.textContent = n;
+  rootSel.appendChild(opt);
+});
+const modeSel = document.getElementById("mode");
+Object.keys(modes).forEach(m => {
+  const opt = document.createElement("option");
+  opt.value = m; opt.textContent = m;
+  modeSel.appendChild(opt);
+});
+
+// Build scale
+function buildScale(root, mode) {
+  const steps = modes[mode];
+  let idx = chromatic.indexOf(root);
+  let scale = [root];
+  let intervalSum = 0;
+  let intervalsNamed = ["Root"];
+  for (let step of steps) {
+    intervalSum += step;
+    idx = (idx + step) % 12;
+    scale.push(chromatic[idx]);
+    intervalsNamed.push(intervals[intervalSum]);
+  }
+  return { scale: scale.slice(0,7), intervals: intervalsNamed.slice(0,7) };
+}
+
+// Stack thirds diatonically
+function stackChords(scale, size) {
+  const chords = [];
+  for (let i=0;i<scale.length;i++) {
+    let chord = [];
+    for (let n=0;n<size;n++) {
+      chord.push(scale[(i + 2*n) % scale.length]);
+    }
+    chords.push(chord.join(" - "));
+  }
+  return chords;
+}
+
+// Render
+function render() {
+  const root = rootSel.value;
+  const mode = modeSel.value;
+  const {scale, intervals: ints} = buildScale(root, mode);
+
+  document.getElementById("scale").innerHTML =
+    scale.map((n,i)=>`<div class="card">${n} (${ints[i]})</div>`).join("");
+
+  document.getElementById("triads").innerHTML =
+    stackChords(scale,3).map(c=>`<div class="card">${c}</div>`).join("");
+
+  document.getElementById("sevenths").innerHTML =
+    stackChords(scale,4).map(c=>`<div class="card">${c}</div>`).join("");
+
+  document.getElementById("ninths").innerHTML =
+    stackChords(scale,5).map(c=>`<div class="card">${c}</div>`).join("");
+
+  document.getElementById("elevenths").innerHTML =
+    stackChords(scale,6).map(c=>`<div class="card">${c}</div>`).join("");
+}
+
+// Initialize
+rootSel.value = "C";
+modeSel.value = "Ionian (Major)";
+render();
+rootSel.addEventListener("change", render);
+modeSel.addEventListener("change", render);
+</script>
+</body>
+</html>
