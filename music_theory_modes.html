@@ -1,0 +1,242 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script>```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Theory Modes</title>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #1a1a1a, #2c2c2c);
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        .container:hover {
+            transform: translateY(-5px);
+        }
+        h1 {
+            text-align: center;
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+        select {
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            background: #3a3a3a;
+            color: #e0e0e0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        select:hover {
+            background: #4a4a4a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+        }
+        th {
+            background: #00ffcc;
+            color: #1a1a1a;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+        td {
+            background: #333;
+        }
+        tr:hover td {
+            background: #444;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 15px;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            select {
+                width: 100%;
+            }
+            th, td {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Music Theory Modes</h1>
+        <div class="controls">
+            <select id="keySelect" onchange="updateTable()">
+                <option value="C">C</option>
+                <option value="C#">C#</option>
+                <option value="D">D</option>
+                <option value="D#">D#</option>
+                <option value="E">E</option>
+                <option value="F">F</option>
+                <option value="F#">F#</option>
+                <option value="G">G</option>
+                <option value="G#">G#</option>
+                <option value="A">A</option>
+                <option value="A#">A#</option>
+                <option value="B">B</option>
+            </select>
+            <select id="modeSelect" onchange="updateTable()">
+                <option value="Ionian">Ionian</option>
+                <option value="Dorian">Dorian</option>
+                <option value="Phrygian">Phrygian</option>
+                <option value="Lydian">Lydian</option>
+                <option value="Mixolydian">Mixolydian</option>
+                <option value="Aeolian">Aeolian</option>
+                <option value="Locrian">Locrian</option>
+            </select>
+        </div>
+        <table id="modeTable">
+            <thead>
+                <tr>
+                    <th>Property</th>
+                    <th>Details</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+    </div>
+    <script>
+        const modesData = {
+            "C": {
+                "Ionian": {
+                    notes: ["C", "D", "E", "F", "G", "A", "B"],
+                    intervals: ["Root", "Major 2nd", "Major 3rd", "Perfect 4th", "Perfect 5th", "Major 6th", "Major 7th"],
+                    triads: ["Cmaj", "Dmin", "Emin", "Fmaj", "Gmaj", "Amin", "Bdim"],
+                    fourNote: ["Cmaj7", "Dmin7", "Emin7", "Fmaj7", "G7", "Amin7", "Bmin7b5"],
+                    fiveNote: ["Cmaj9", "Dmin9", "Emin7b9", "Fmaj9", "G9", "Amin9", "Bmin7b5b9"],
+                    sixNote: ["Cmaj11", "Dmin11", "Emin7b9b11", "Fmaj11", "G11", "Amin11", "Bmin7b5b9b11"]
+                },
+                "Dorian": {
+                    notes: ["D", "E", "F", "G", "A", "B", "C"],
+                    intervals: ["Root", "Major 2nd", "Minor 3rd", "Perfect 4th", "Perfect 5th", "Major 6th", "Minor 7th"],
+                    triads: ["Dmin", "Emin", "Fmaj", "Gmaj", "Amin", "Bdim", "Cmaj"],
+                    fourNote: ["Dmin7", "Emin7", "Fmaj7", "G7", "Amin7", "Bmin7b5", "Cmaj7"],
+                    fiveNote: ["Dmin9", "Emin7b9", "Fmaj9", "G9", "Amin9", "Bmin7b5b9", "Cmaj9"],
+                    sixNote: ["Dmin11", "Emin7b9b11", "Fmaj11", "G11", "Amin11", "Bmin7b5b9b11", "Cmaj11"]
+                },
+                "Phrygian": {
+                    notes: ["E", "F", "G", "A", "B", "C", "D"],
+                    intervals: ["Root", "Minor 2nd", "Minor 3rd", "Perfect 4th", "Perfect 5th", "Minor 6th", "Minor 7th"],
+                    triads: ["Emin", "Fmaj", "Gmaj", "Amin", "Bdim", "Cmaj", "Dmin"],
+                    fourNote: ["Emin7", "Fmaj7", "G7", "Amin7", "Bmin7b5", "Cmaj7", "Dmin7"],
+                    fiveNote: ["Emin7b9", "Fmaj9", "G9", "Amin9", "Bmin7b5b9", "Cmaj9", "Dmin9"],
+                    sixNote: ["Emin7b9b11", "Fmaj11", "G11", "Amin11", "Bmin7b5b9b11", "Cmaj11", "Dmin11"]
+                },
+                "Lydian": {
+                    notes: ["F", "G", "A", "B", "C", "D", "E"],
+                    intervals: ["Root", "Major 2nd", "Major 3rd", "Augmented 4th", "Perfect 5th", "Major 6th", "Major 7th"],
+                    triads: ["Fmaj", "Gmaj", "Amin", "Bdim", "Cmaj", "Dmin", "Emin"],
+                    fourNote: ["Fmaj7", "G7", "Amin7", "Bmin7b5", "Cmaj7", "Dmin7", "Emin7"],
+                    fiveNote: ["Fmaj9", "G9", "Amin9", "Bmin7b5b9", "Cmaj9", "Dmin9", "Emin7b9"],
+                    sixNote: ["Fmaj11", "G11", "Amin11", "Bmin7b5b9b11", "Cmaj11", "Dmin11", "Emin7b9b11"]
+                },
+                "Mixolydian": {
+                    notes: ["G", "A", "B", "C", "D", "E", "F"],
+                    intervals: ["Root", "Major 2nd", "Major 3rd", "Perfect 4th", "Perfect 5th", "Major 6th", "Minor 7th"],
+                    triads: ["Gmaj", "Amin", "Bdim", "Cmaj", "Dmin", "Emin", "Fmaj"],
+                    fourNote: ["G7", "Amin7", "Bmin7b5", "Cmaj7", "Dmin7", "Emin7", "Fmaj7"],
+                    fiveNote: ["G9", "Amin9", "Bmin7b5b9", "Cmaj9", "Dmin9", "Emin7b9", "Fmaj9"],
+                    sixNote: ["G11", "Amin11", "Bmin7b5b9b11", "Cmaj11", "Dmin11", "Emin7b9b11", "Fmaj11"]
+                },
+                "Aeolian": {
+                    notes: ["A", "B", "C", "D", "E", "F", "G"],
+                    intervals: ["Root", "Major 2nd", "Minor 3rd", "Perfect 4th", "Perfect 5th", "Minor 6th", "Minor 7th"],
+                    triads: ["Amin", "Bdim", "Cmaj", "Dmin", "Emin", "Fmaj", "Gmaj"],
+                    fourNote: ["Amin7", "Bmin7b5", "Cmaj7", "Dmin7", "Emin7", "Fmaj7", "G7"],
+                    fiveNote: ["Amin9", "Bmin7b5b9", "Cmaj9", "Dmin9", "Emin7b9", "Fmaj9", "G9"],
+                    sixNote: ["Amin11", "Bmin7b5b9b11", "Cmaj11", "Dmin11", "Emin7b9b11", "Fmaj11", "G11"]
+                },
+                "Locrian": {
+                    notes: ["B", "C", "D", "E", "F", "G", "A"],
+                    intervals: ["Root", "Minor 2nd", "Minor 3rd", "Perfect 4th", "Diminished 5th", "Minor 6th", "Minor 7th"],
+                    triads: ["Bdim", "Cmaj", "Dmin", "Emin", "Fmaj", "Gmaj", "Amin"],
+                    fourNote: ["Bmin7b5", "Cmaj7", "Dmin7", "Emin7", "Fmaj7", "G7", "Amin7"],
+                    fiveNote: ["Bmin7b5b9", "Cmaj9", "Dmin9", "Emin7b9", "Fmaj9", "G9", "Amin9"],
+                    sixNote: ["Bmin7b5b9b11", "Cmaj11", "Dmin11", "Emin7b9b11", "Fmaj11", "G11", "Amin11"]
+                }
+            }
+            // Additional keys (C#, D, D#, etc.) follow the same pattern, shifted chromatically
+        };
+
+        // Function to generate data for other keys by transposing C-based data
+        const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        const modes = ["Ionian", "Dorian", "Phrygian", "Lydian", "Mixolydian", "Aeolian", "Locrian"];
+        const intervalPatterns = {
+            Ionian: ["Root", "Major 2nd", "Major 3rd", "Perfect 4th", "Perfect 5th", "Major 6th", "Major 7th"],
+            Dorian: ["Root", "Major 2nd", "Minor 3rd", "Perfect 4th", "Perfect 5th", "Major 6th", "Minor 7th"],
+            Ph
